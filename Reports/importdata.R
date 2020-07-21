@@ -1,12 +1,12 @@
 library(ncdf4)
-flora <- read.csv('flora.csv')
+flora <- read.csv('./CleanData/flora.csv')
 
-files <- list.files('~/Desktop/Projects/Flora/Daily')
+files <- list.files('./RawData/Daily')
 
 time <- c()
 tsi <- c()
 for(f in files){
-  si <- nc_open(paste0('./Daily/',f))
+  si <- nc_open(paste0('./RawData/Daily/',f))
   tsi <- c(tsi,ncvar_get(si,'TSI'))
   time <- c(time,ncvar_get(si,'time'))
 }

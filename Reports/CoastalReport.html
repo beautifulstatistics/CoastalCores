@@ -371,16 +371,21 @@ summary {
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>This paper shows a correlation between Flora Ash Free Dry Weight (AFDW) of coastal cores and Total Solar Irradiance (TSI). AFDW is measured in grams(? I am not sure what it is measured in), and TSI is measured in watt per square meter (w/m^2). The data for the flora AFDW was collected over the course of 13 years, from 1998 to 2010 along the New Jersey coast. The data for the TSI was collected by National Centers for Environmental Information, National Oceanic and Atmospheric Administration. For the entire period between 1998 and 2010 the daily TSI was extracted from the below URL and then for each date is the flora AFDW dataset, the prior 30 day mean TSI was calculated.</p>
+<p>This paper shows a correlation between Flora Ash Free Dry Weight (AFDW) of coastal cores and Total Solar Irradiance (TSI). This is significant because it shows that waxing and waning solar cycles have an effect on coastal plant life. We show a significant median increase of .339 Total AFDW for every watt per meter squared of monthly TSI. The effect is small, but significant.</p>
+</div>
+<div id="methods" class="section level1">
+<h1>Methods</h1>
+<p>AFDW is measured in grams, and TSI is measured in watt per square meter (w/m^2). The data for the flora AFDW was collected over the course of 13 years, from 1998 to 2010 along the New Jersey coast. The data for the TSI was collected by National Centers for Environmental Information, National Oceanic and Atmospheric Administration. For the entire period between 1998 and 2010 the daily TSI was extracted from the below URL and then for each date is the flora AFDW dataset, the prior 30 day mean TSI was calculated.</p>
 <p><a href="https://data.nodc.noaa.gov/cgi-bin/iso?id=gov.noaa.ncdc:C00828" class="uri">https://data.nodc.noaa.gov/cgi-bin/iso?id=gov.noaa.ncdc:C00828</a></p>
+<p>The AFDW was collected by the Biology Department of Montclair State Univeristy. The project lead was Dr. Paul Bologna.</p>
 </div>
 <div id="data" class="section level1">
 <h1>Data</h1>
 <p>Load the data and some libraries.</p>
-<pre class="r"><code>setwd(&#39;~/Desktop/Projects/Flora&#39;)
+<pre class="r"><code>setwd(&#39;~/Desktop/Projects/CoastalCores/&#39;)
 library(ggplot2)
 library(cowplot)
-source(&#39;importdata.R&#39;)</code></pre>
+source(&#39;./Reports/importdata.R&#39;)</code></pre>
 <p>We plot both TSI and AFDW by Date.</p>
 <pre class="r"><code>p1 &lt;- ggplot(si)+
       geom_point(aes(Date,TSI))+
@@ -449,7 +454,8 @@ anova(rq2)</code></pre>
 </div>
 <div id="conclusion" class="section level1">
 <h1>Conclusion</h1>
-<p>This is not a final product. It is just the core statistics that show the relationship between the mean monthly TSI and the total AFDW over the course of the observational study.</p>
+<p>This is not a final product. It is the core statistics that show the relationship between the mean monthly TSI and the total AFDW over the course of the observational study.</p>
+<p>These core statistics will form the base of a paper that will be written eventually.</p>
 <p>In summary, every quantile of AFDW by Mean Monthly TSI is positive and significant for a range of quantiles except the 75 % quantile. There is a significant median increase in .339 Total AFDW for every watt per meter squared of solar irradiance. And lastly, the slopes at .05,.25,.5, and .75 are equal while the slope at .95 is different.</p>
 </div>
 
