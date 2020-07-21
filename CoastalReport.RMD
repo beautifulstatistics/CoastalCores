@@ -1,0 +1,99 @@
+---
+title: "Flora Ash Free Dry Weight and Solar Irradiance"
+author: "Wayne Kenney"
+date: "6/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+This paper shows a correlation between Flora Ash Free Dry Weight (AFDW) of coastal cores and Total Solar Irradiance (TSI). AFDW is measured in grams(? I am not sure what it is measured in), and TSI is measured in watt per square meter (w/m^2). The data for the flora AFDW was collected over the course of 13 years, from 1998 to 2010 along the New Jersey coast. The data for the TSI was collected by National Centers for Environmental Information, National Oceanic and Atmospheric Administration. For the entire period between 1998 and 2010 the daily TSI was extracted from the below URL and then for each date is the flora AFDW dataset, the prior 30 day mean TSI was calculated.
+
+https://data.nodc.noaa.gov/cgi-bin/iso?id=gov.noaa.ncdc:C00828
+
+
+# Data
+
+Load the data and some libraries.
+
+```{r,message=FALSE}
+setwd('~/Desktop/Projects/Flora')
+library(ggplot2)
+library(cowplot)
+source('importdata.R')
+```
+
+We plot both TSI and AFDW by Date.
+
+```{r, message=FALSE}
+p1 <- ggplot(si)+
+      geom_point(aes(Date,TSI))+
+      ylab('Mean Montly Total Solar Irradiance')+
+      xlab('Date')
+
+p2 <- ggplot(si)+
+      geom_point(aes(Date,AFDW))+
+      ylab('Total Ash Free Dry Weight')+
+      xlab('Date')
+
+plot_grid(p1, p2, align = "v", ncol = 1)
+```
+
+There appear to be some weak connection. There also appear to be outliers from the main mass of points so classical linear regression is not the preferred method. I fit instead the quantile lines at .05,.25,.5,.75, and .95. For each of these a line that connects each specified quantile of Total Ash Free Dry Weight at each value of Total Solar Irradiance. For instance, where linear regression finds the line through the *mean* of the response (Total Ash Free Dry Weight), quantile regression at .5 finds the line through the *median*. Usually a range of quantiles are fit to look at the entire distribution. 
+
+```{r,message=FALSE}
+library(quantreg)
+rq1 <- rq(AFDW~TSI,data=si,tau=c(.05,.25,.5,.75,.95))
+extrqc(rq1,se='nid')
+```
+
+The above table shows the coefficient on TSI. They are all positive, and significant at the .05 level except the 75 % quantile. The important one here is median, for every watt per meter squared, there is a median increase in .339 Total AFDW. Interpretations for every other quantile works the same. 
+
+The p values were calculated with the "nid" method. This presumes local (in quantile) linearity (in x) of the the conditional quantile functions and computes a Huber sandwich estimate using a local estimate of the sparsity. (This is a copy and paste from the documentation.)
+
+There are no distributional assumption checking for quantile regression as there are no distributional assumptions.
+
+We can superimpose each qunatile regression line on the dataset. The top plot is the whole dataset, the bottom is zoomed in a little removing points above 10 grams.
+
+```{r}
+coef <- data.frame(t(coef(rq1)))
+coef$Quantile <- paste0(substr(row.names(coef),8,9),'%')
+colnames(coef)[1:2] <- c('Intercept','Slope')
+
+p1 <- ggplot(si)+
+  geom_point(aes(TSI,AFDW))+
+  geom_abline(data=coef,
+              mapping=aes(intercept=Intercept,slope=Slope,col=Quantile))
+
+p2 <- ggplot(subset(si,AFDW < 10))+
+  geom_point(aes(TSI,AFDW))+
+  geom_abline(data=coef,
+              mapping=aes(intercept=Intercept,slope=Slope,col=Quantile))
+
+plot_grid(p1, p2, align = "v", ncol = 1)
+```
+
+Lastly we can do an joint equality of slopes anova. This looks at all the slopes together and compares them to see if they are all statistically equal.
+
+```{r}
+anova(rq1)
+```
+
+And it is significant meaning that at least one slope is different. It is clear that the different slope is the 95 % quantile. It is much greater than the others. We can remove it and check to see if the other quantiles are the same.
+
+```{r}
+rq2 <- rq(AFDW~TSI,si,tau=c(.05,.25,.5,.75))
+anova(rq2)
+```
+
+This is not significant showing that the quantiles at .05,.25,.5, and .75 are statistically equal.
+
+# Conclusion
+
+This is not a final product. It is just the core statistics that show the relationship between the mean monthly TSI and the total AFDW over the course of the observational study.
+
+In summary, every quantile of AFDW by Mean Monthly TSI is positive and significant for a range of quantiles except the 75 % quantile. There is a significant median increase in .339 Total AFDW for every watt per meter squared of solar irradiance. And lastly, the slopes at .05,.25,.5, and .75 are equal while the slope at .95 is different.
